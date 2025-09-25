@@ -46,7 +46,7 @@ import com.example.labweekthree.R
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
-enum class GameState {
+private enum class SoalOneGameState {
     MainMenu,
     Waiting,
     ReadyToTap,
@@ -59,7 +59,7 @@ data class ResultCategory(val message: String, val color: Color,val image: Int)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun SoalOneView() {
-    var gameState by remember { mutableStateOf(GameState.MainMenu) }
+    var gameState by remember { mutableStateOf(SoalOneGameState.MainMenu) }
     var currentTrial by remember { mutableIntStateOf(1) }
 
     val trialResults by remember { mutableStateOf(mutableListOf<Long>()) }
@@ -67,13 +67,13 @@ fun SoalOneView() {
     var lastReactionTime by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(key1 = gameState, key2 = currentTrial) {
-        if (gameState == GameState.Waiting) {
+        if (gameState == SoalOneGameState.Waiting) {
             val randomDelay = Random.nextLong(500, 4500)
             delay(randomDelay)
 
-            if (gameState == GameState.Waiting) {
+            if (gameState == SoalOneGameState.Waiting) {
                 startTime = System.currentTimeMillis()
-                gameState = GameState.ReadyToTap
+                gameState = SoalOneGameState.ReadyToTap
             }
         }
     }
@@ -81,15 +81,15 @@ fun SoalOneView() {
     fun resetGame() {
         currentTrial = 1
         trialResults.clear()
-        gameState = GameState.MainMenu
+        gameState = SoalOneGameState.MainMenu
     }
 
     fun proceedToNextStep() {
         if (currentTrial < 3) {
             currentTrial++
-            gameState = GameState.TrialRecap
+            gameState = SoalOneGameState.TrialRecap
         } else {
-            gameState = GameState.FinalResult
+            gameState = SoalOneGameState.FinalResult
         }
     }
 
@@ -98,42 +98,42 @@ fun SoalOneView() {
             .fillMaxSize()
             .clickable {
                 when (gameState) {
-                    GameState.MainMenu -> {
-                        gameState = GameState.Waiting
+                    SoalOneGameState.MainMenu -> {
+                        gameState = SoalOneGameState.Waiting
                     }
-                    GameState.TrialRecap ->{
-                        gameState = GameState.MainMenu
+                    SoalOneGameState.TrialRecap ->{
+                        gameState = SoalOneGameState.MainMenu
                     }
 
-                    GameState.Waiting -> {
+                    SoalOneGameState.Waiting -> {
                         trialResults.add(-1L)
                         proceedToNextStep()
                     }
 
-                    GameState.ReadyToTap -> {
+                    SoalOneGameState.ReadyToTap -> {
                         lastReactionTime = System.currentTimeMillis() - startTime
                         trialResults.add(lastReactionTime)
                         proceedToNextStep()
                     }
 
-                    GameState.FinalResult -> {
+                    SoalOneGameState.FinalResult -> {
                         resetGame()
                     }
                 }
             }
     ) {
         when (gameState) {
-            GameState.MainMenu -> MainMenuView(trialResults)
-            GameState.Waiting -> WaitingView()
-            GameState.ReadyToTap -> ReadyView()
-            GameState.TrialRecap -> {
+            SoalOneGameState.MainMenu -> MainMenuView(trialResults)
+            SoalOneGameState.Waiting -> WaitingView()
+            SoalOneGameState.ReadyToTap -> ReadyView()
+            SoalOneGameState.TrialRecap -> {
                 if (trialResults.last() == -1L) {
                     FailureView(trialResults)
                 } else {
                     TrialRecapView(currentTrial - 1, trialResults.last(), trialResults)
                 }
             }
-            GameState.FinalResult -> FinalResultView(trialResults)
+            SoalOneGameState.FinalResult -> FinalResultView(trialResults)
         }
     }
 }
