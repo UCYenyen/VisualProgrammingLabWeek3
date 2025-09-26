@@ -16,12 +16,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.labweekthree.R
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 
 @Composable
@@ -45,14 +44,23 @@ fun SoalTwoView() {
     var upgradeCost by remember { mutableIntStateOf(10) }
     var isCatPressed by remember { mutableStateOf(false) }
 
+    // 1. Tambahkan state 'trigger' sebagai kunci untuk LaunchedEffect
+    var clickTrigger by remember { mutableIntStateOf(0) }
+
     val decimalFormat = DecimalFormat("#.#")
-    val scope = rememberCoroutineScope()
 
     fun performUpgrade() {
         if (coins >= upgradeCost) {
             coins -= upgradeCost
             upgradeCost *= 2
             coinPerClick *= 1.5f
+        }
+    }
+
+    if (isCatPressed) {
+        LaunchedEffect(key1 = clickTrigger) {
+            delay(300L)
+            isCatPressed = false
         }
     }
 
@@ -106,11 +114,9 @@ fun SoalTwoView() {
                         .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             coins += coinPerClick.toInt()
-                            scope.launch {
-                                isCatPressed = true
-                                delay(100)
-                                isCatPressed = false
-                            }
+                            isCatPressed = true
+
+                            clickTrigger++
                         }
                 )
                 Text(
@@ -168,3 +174,4 @@ fun SoalTwoView() {
 private fun SoalTwoPreview() {
     SoalTwoView()
 }
+
